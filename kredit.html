@@ -338,10 +338,19 @@
           throw new Error(`HTTP ${printResponse.status}`);
         }
         
-        const printResult = await printResponse.json();
+        let printResult;
+        try {
+          printResult = await printResponse.clone().json();
+        } catch (parseError) {
+          const textFallback = await printResponse.text();
+          printResult = textFallback;
+          addDebug(`Çap nəticəsi JSON deyil, mətn kimi oxundu: ${textFallback.slice(0, 200)}`);
+        }
+
+        const { success: printSuccess, message: printMessage } = interpretPrinterResult(printResult);
         addDebug(`Çap nəticəsi: ${JSON.stringify(printResult)}`);
-        
-        if (printResult.isSuccess) {
+
+        if (printSuccess) {
           addDebug('✓ Qəbz uğurla çap olundu');
           
           // Kağızı kəs (opsional)
@@ -361,13 +370,71 @@
           }
           
           return { success: true };
-        } else {
-          throw new Error(printResult.errorMsg || "Çap xətası");
         }
+
+        throw new Error(printMessage || "Çap xətası");
       } catch (error) {
         addDebug(`✗ Çap xətası: ${error.message}`);
         return { success: false, error: error.message };
       }
+    }
+
+    function interpretPrinterResult(rawResult) {
+      if (rawResult === undefined || rawResult === null) {
+        return { success: true };
+      }
+
+      if (typeof rawResult === 'string') {
+        const normalized = rawResult.trim().toLowerCase();
+        if (!normalized) {
+          return { success: true };
+        }
+
+        if (["ok", "success", "true", "printed"].some(keyword => normalized.includes(keyword))) {
+          return { success: true };
+        }
+
+        return { success: false, message: rawResult };
+      }
+
+      if (typeof rawResult === 'object') {
+        if (typeof rawResult.isSuccess === 'boolean') {
+          return { success: rawResult.isSuccess, message: rawResult.errorMsg || rawResult.message || rawResult.error };
+        }
+
+        if (typeof rawResult.success === 'boolean') {
+          return { success: rawResult.success, message: rawResult.message || rawResult.errorMsg || rawResult.error };
+        }
+
+        if (typeof rawResult.status === 'boolean') {
+          return { success: rawResult.status, message: rawResult.message || rawResult.errorMsg || rawResult.error };
+        }
+
+        if (typeof rawResult.status === 'string') {
+          const normalizedStatus = rawResult.status.toLowerCase();
+          if (["ok", "success", "done", "printed", "printer normal"].includes(normalizedStatus)) {
+            return { success: true };
+          }
+
+          if (["fail", "error", "failed"].some(keyword => normalizedStatus.includes(keyword))) {
+            return { success: false, message: rawResult.message || rawResult.errorMsg || rawResult.error || rawResult.status };
+          }
+        }
+
+        if (typeof rawResult.code !== 'undefined') {
+          const isZero = Number(rawResult.code) === 0;
+          return { success: isZero, message: rawResult.message || rawResult.errorMsg || rawResult.error };
+        }
+
+        if (rawResult.data && typeof rawResult.data === 'string') {
+          const normalizedData = rawResult.data.toLowerCase();
+          if (["ok", "success", "printer normal"].some(keyword => normalizedData.includes(keyword))) {
+            return { success: true };
+          }
+        }
+      }
+
+      return { success: true };
     }
 
     // ============================================
