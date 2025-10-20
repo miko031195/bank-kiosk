@@ -546,6 +546,86 @@
         messages.includes('template not supported');
     }
 
+    function detectPrinterSuccess(parsed, rawText) {
+      if (parsed) {
+        if (parsed.isSuccess === true || parsed.success === true) {
+          return true;
+        }
+
+        if (parsed.isSuccess === false || parsed.success === false) {
+          return false;
+        }
+
+        if (typeof parsed.status === 'string' && /success|printed|ok/i.test(parsed.status)) {
+          return true;
+        }
+
+        if (typeof parsed.data === 'string' && /success|printed|ok/i.test(parsed.data)) {
+          return true;
+        }
+
+        if (parsed.errorCode === 200 && parsed.errorMsg == null) {
+          return true;
+        }
+      }
+
+      if (!rawText) {
+        return true;
+      }
+
+      return /success|printed|ok/i.test(rawText);
+    }
+
+    function extractPrinterMessage(parsed, rawText) {
+      if (parsed) {
+        if (typeof parsed.errorMsg === 'string' && parsed.errorMsg.trim()) {
+          return parsed.errorMsg.trim();
+        }
+
+        if (typeof parsed.message === 'string' && parsed.message.trim()) {
+          return parsed.message.trim();
+        }
+
+        if (typeof parsed.data === 'string' && parsed.data.trim() && !/success|printed|ok/i.test(parsed.data)) {
+          return parsed.data.trim();
+        }
+      }
+
+      if (rawText) {
+        return rawText;
+      }
+
+      return null;
+    }
+
+    function shouldFallbackToPlainText(result) {
+      if (!result || result.success) {
+        return false;
+      }
+
+      if (result.parsed && result.parsed.errorCode === 501) {
+        return true;
+      }
+
+      const messages = [
+        result.message,
+        result.error,
+        result.raw,
+        result.parsed && typeof result.parsed.errorMsg === 'string' ? result.parsed.errorMsg : null,
+        result.parsed && typeof result.parsed.message === 'string' ? result.parsed.message : null,
+        result.parsed && typeof result.parsed.data === 'string' ? result.parsed.data : null
+      ].filter(Boolean).join(' ').toLowerCase();
+
+      if (!messages) {
+        return false;
+      }
+
+      return messages.includes('invalid format') ||
+        messages.includes('param format') ||
+        messages.includes('template not support') ||
+        messages.includes('template not supported');
+    }
+
     // ============================================
     // NAĞD ÖDƏNİŞ PROSESİ
     // ============================================
