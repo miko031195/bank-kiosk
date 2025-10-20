@@ -198,7 +198,7 @@
     // ============================================
     const PRINTER_BASE_URL = "http://10.66.66.63:8080";
     const HARDWARE_BASE_URL = "http://10.66.66.63:8080";
-    const PRINTER_ID = "1";
+    const PRINTER_ID = 1;
 
     // ============================================
     // DEBUG FUNKSIYASI
@@ -273,101 +273,277 @@
     // ============================================
     async function printReceipt(receiptData, printerId = PRINTER_ID) {
       try {
-        addDebug("Qəbz hazırlanır...");
-        
+        addDebug("Çek çap edilir...");
+
         const currentDate = new Date();
         const dateStr = currentDate.toLocaleDateString('az-AZ');
         const timeStr = currentDate.toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' });
-        
-        // İstehsalçı formatına uyğun sadə mətn
-        let receiptContent = "";
-        
-        // Başlıq
-        receiptContent += "===========================\n";
-        receiptContent += "     HALAL-P BANK\n";
-        receiptContent += "   Kredit Ödəniş Qəbzi\n";
-        receiptContent += "    Nardaran filialı\n";
-        receiptContent += "===========================\n";
-        receiptContent += `Tarix: ${dateStr}  Saat: ${timeStr}\n`;
-        receiptContent += "---------------------------\n\n";
-        
-        // Müştəri məlumatları
-        receiptContent += "MÜŞTƏRİ:\n";
-        receiptContent += `Ad: ${receiptData.customer}\n`;
-        receiptContent += `Müqavilə: ${receiptData.contract}\n`;
-        receiptContent += `Bank: ${receiptData.bank}\n`;
-        receiptContent += "---------------------------\n\n";
-        
-        // Ödəniş məlumatları
-        receiptContent += "ÖDƏNİŞ:\n";
-        receiptContent += `Məbləğ:         ${receiptData.paid.toFixed(2)} AZN\n`;
-        receiptContent += `Növ:            Nağd\n`;
-        
-        if (receiptData.note && receiptData.note.trim()) {
-          receiptContent += `Qeyd:           ${receiptData.note}\n`;
+
+        const templateContent = buildTemplateReceipt(receiptData, dateStr, timeStr);
+
+        const templateAttempt = await sendPrinterPayload({
+          id: Number(printerId),
+          type: "template",
+          encoding: "UTF-8",
+          data: templateContent
+        }, 'template');
+
+        if (templateAttempt.success) {
+          return { success: true };
         }
-        
-        if (receiptData.transaction_id) {
-          const shortTxId = receiptData.transaction_id.substring(0, 18);
-          receiptContent += `Tranzaksiya ID: ${shortTxId}\n`;
+
+        if (shouldFallbackToPlainText(templateAttempt)) {
+          addDebug('Template formatı qəbul edilmədi, adi mətn formatına keçilir...');
+
+          const plainContent = buildPlainReceipt(receiptData, dateStr, timeStr);
+          const plainAttempt = await sendPrinterPayload({
+            id: Number(printerId),
+            type: "string",
+            data: plainContent
+          }, 'string');
+
+          if (plainAttempt.success) {
+            await sendPrinterPayload({
+              id: Number(printerId),
+              type: "cut",
+              data: "half"
+            }, 'cut');
+
+            return { success: true };
+          }
+
+          const plainMessage = plainAttempt.message || plainAttempt.error || 'Çek çap edilmədi';
+          return { success: false, error: plainMessage };
         }
-        
-        receiptContent += "===========================\n\n";
-        
-        // Alt hissə
-        receiptContent += "  Terminal № 2312 • Nardaran\n";
-        receiptContent += "      Təşəkkür edirik!\n\n\n";
-        
-        addDebug(`Qəbz məzmunu: ${receiptContent.length} simvol`);
-        
-        // İstehsalçı API formatı: stringByPicture
-        const printResponse = await fetch(`${PRINTER_BASE_URL}/api/printSetting`, {
+
+        const message = templateAttempt.message || templateAttempt.error || 'Çek çap edilmədi';
+        return { success: false, error: message };
+      } catch (error) {
+        addDebug(`Çek çap xətası: ${error.message}`);
+        return { success: false, error: error.message };
+      }
+    }
+
+    function normalizeToTurkishCharset(text) {
+      if (typeof text !== 'string' || !text) {
+        return text;
+      }
+
+      const map = {
+        'ə': 'e',
+        'Ə': 'E',
+        'ä': 'a',
+        'Ä': 'A',
+        'ö': 'ö',
+        'Ö': 'Ö',
+        'ü': 'ü',
+        'Ü': 'Ü',
+        'ı': 'ı',
+        'İ': 'İ',
+        'ğ': 'ğ',
+        'Ğ': 'Ğ',
+        'ş': 'ş',
+        'Ş': 'Ş',
+        'ç': 'ç',
+        'Ç': 'Ç'
+      };
+
+      return text.replace(/[ƏəÄäÖöÜüİıĞğŞşÇç]/g, ch => map[ch] || ch);
+    }
+
+    function buildTemplateReceipt(receiptData, dateStr, timeStr) {
+      let content = "";
+      content += "#cmd_fs_l\n#cmd_ta_c\nHALAL-P BANK\n";
+      content += "#cmd_fs_m\n#cmd_ta_c\nKredit Ödəniş Qəbzi\nNardaran filialı\n";
+      content += "#cmd_sep_equal\n";
+      content += "#cmd_ta_l\n#cmd_fs_s\n";
+      content += `Tarix: ${dateStr}\n`;
+      content += `Saat: ${timeStr}\n`;
+      content += "#cmd_sep_hyphen\n";
+      content += "#cmd_fs_m\n#cmd_ta_l\nMÜŞTƏRİ:\n";
+      content += "#cmd_fs_s\n";
+      content += `Ad: ${receiptData.customer}\n`;
+      content += `Müqavilə: ${receiptData.contract}\n`;
+      content += `Bank: ${receiptData.bank}\n`;
+      content += "#cmd_sep_hyphen\n";
+      content += "#cmd_fs_m\n#cmd_ta_l\nÖDƏNİŞ:\n";
+      content += "#cmd_fs_s\n";
+      content += `Məbləğ: ${receiptData.paid.toFixed(2)} AZN\n`;
+      content += "Növ: Nağd\n";
+
+      if (receiptData.note && receiptData.note.trim()) {
+        content += `Qeyd: ${receiptData.note}\n`;
+      }
+
+      if (receiptData.transaction_id) {
+        const shortTxId = receiptData.transaction_id.substring(0, 18);
+        content += `Tranzaksiya ID: ${shortTxId}\n`;
+      }
+
+      content += "#cmd_sep_equal\n";
+      content += "#cmd_fs_s\n#cmd_ta_c\n";
+      content += "Terminal № 2312 • Nardaran\n";
+      content += "Təşəkkür edirik!\n";
+      content += "#cmd_lf_2\n";
+      content += "#cmd_cut_\n";
+
+      return normalizeToTurkishCharset(content);
+    }
+
+    function buildPlainReceipt(receiptData, dateStr, timeStr) {
+      const lines = [];
+      lines.push('HALAL-P BANK');
+      lines.push('Kredit Ödəniş Qəbzi');
+      lines.push('==============================');
+      lines.push(`Tarix: ${dateStr}`);
+      lines.push(`Saat: ${timeStr}`);
+      lines.push('------------------------------');
+      lines.push(`Müştəri: ${receiptData.customer}`);
+      lines.push(`Müqavilə: ${receiptData.contract}`);
+      lines.push(`Bank: ${receiptData.bank}`);
+      lines.push('------------------------------');
+      lines.push(`Ödənilən məbləğ: ${receiptData.paid.toFixed(2)} AZN`);
+      lines.push('Ödəniş növü: Nağd');
+
+      if (receiptData.note && receiptData.note.trim()) {
+        lines.push(`Qeyd: ${receiptData.note.trim()}`);
+      }
+
+      if (receiptData.transaction_id) {
+        lines.push(`Tranzaksiya ID: ${receiptData.transaction_id.substring(0, 18)}`);
+      }
+
+      lines.push('==============================');
+      lines.push('Terminal № 2312 • Nardaran');
+      lines.push('Təşəkkür edirik!');
+
+      return normalizeToTurkishCharset(lines.join('\n'));
+    }
+
+    async function sendPrinterPayload(payload, label) {
+      try {
+        const shortPreview = typeof payload.data === 'string'
+          ? `${payload.data.substring(0, 80)}${payload.data.length > 80 ? '…' : ''}`
+          : '';
+        addDebug(`Printerə ${label} sorğusu göndərilir (${JSON.stringify({ ...payload, data: undefined })}) :: ${shortPreview}`);
+
+        const response = await fetch(`${PRINTER_BASE_URL}/api/printSetting`, {
           method: 'POST',
-          headers: { 
+          headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
-          body: JSON.stringify({
-            id: printerId,
-            type: "stringByPicture",
-            data: receiptContent
-          })
+          body: JSON.stringify(payload)
         });
-        
-        if (!printResponse.ok) {
-          throw new Error(`HTTP ${printResponse.status}`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
         }
-        
-        const printResult = await printResponse.json();
-        addDebug(`Çap nəticəsi: ${JSON.stringify(printResult)}`);
-        
-        if (printResult.isSuccess) {
-          addDebug('✓ Qəbz uğurla çap olundu');
-          
-          // Kağızı kəs (opsional)
+
+        const raw = await response.text();
+        const trimmed = raw ? raw.trim() : '';
+        let parsed = null;
+
+        if (trimmed) {
           try {
-            await fetch(`${PRINTER_BASE_URL}/api/printSetting`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                id: printerId,
-                type: "cut",
-                data: "half"
-              })
-            });
-            addDebug('✓ Kağız kəsildi');
-          } catch (cutError) {
-            addDebug(`⚠ Kağız kəsilmə xətası: ${cutError.message}`);
+            parsed = JSON.parse(trimmed);
+          } catch (parseError) {
+            addDebug(`Printer ${label} cavabı JSON deyil: ${trimmed}`);
           }
-          
-          return { success: true };
-        } else {
-          throw new Error(printResult.errorMsg || "Çap xətası");
         }
+
+        if (detectPrinterSuccess(parsed, trimmed)) {
+          addDebug(`Printer ${label} cavabı uğurludur${trimmed ? `: ${trimmed}` : ' (boş cavab)'}`);
+          return { success: true, parsed, raw: trimmed };
+        }
+
+        const message = extractPrinterMessage(parsed, trimmed) || `Printer ${label} cavabı uğursuz oldu`;
+        addDebug(`Printer ${label} uğursuz: ${message}`);
+        return { success: false, parsed, raw: trimmed, message };
       } catch (error) {
-        addDebug(`✗ Çap xətası: ${error.message}`);
+        addDebug(`Printer ${label} xətası: ${error.message}`);
         return { success: false, error: error.message };
       }
+    }
+
+    function detectPrinterSuccess(parsed, rawText) {
+      if (parsed) {
+        if (parsed.isSuccess === true || parsed.success === true) {
+          return true;
+        }
+
+        if (parsed.isSuccess === false || parsed.success === false) {
+          return false;
+        }
+
+        if (typeof parsed.status === 'string' && /success|printed|ok/i.test(parsed.status)) {
+          return true;
+        }
+
+        if (typeof parsed.data === 'string' && /success|printed|ok/i.test(parsed.data)) {
+          return true;
+        }
+
+        if (parsed.errorCode === 200 && parsed.errorMsg == null) {
+          return true;
+        }
+      }
+
+      if (!rawText) {
+        return true;
+      }
+
+      return /success|printed|ok/i.test(rawText);
+    }
+
+    function extractPrinterMessage(parsed, rawText) {
+      if (parsed) {
+        if (typeof parsed.errorMsg === 'string' && parsed.errorMsg.trim()) {
+          return parsed.errorMsg.trim();
+        }
+
+        if (typeof parsed.message === 'string' && parsed.message.trim()) {
+          return parsed.message.trim();
+        }
+
+        if (typeof parsed.data === 'string' && parsed.data.trim() && !/success|printed|ok/i.test(parsed.data)) {
+          return parsed.data.trim();
+        }
+      }
+
+      if (rawText) {
+        return rawText;
+      }
+
+      return null;
+    }
+
+    function shouldFallbackToPlainText(result) {
+      if (!result || result.success) {
+        return false;
+      }
+
+      if (result.parsed && result.parsed.errorCode === 501) {
+        return true;
+      }
+
+      const messages = [
+        result.message,
+        result.error,
+        result.raw,
+        result.parsed && typeof result.parsed.errorMsg === 'string' ? result.parsed.errorMsg : null,
+        result.parsed && typeof result.parsed.message === 'string' ? result.parsed.message : null,
+        result.parsed && typeof result.parsed.data === 'string' ? result.parsed.data : null
+      ].filter(Boolean).join(' ').toLowerCase();
+
+      if (!messages) {
+        return false;
+      }
+
+      return messages.includes('invalid format') ||
+        messages.includes('param format') ||
+        messages.includes('template not support') ||
+        messages.includes('template not supported');
     }
 
     // ============================================
