@@ -6,190 +6,673 @@
   <title>Kredit ödənişi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
-    :root{ --brand:#155EEF; --ink:#0f172a; --muted:#64748b; --bg:#f1f5f9; --card:#ffffff; --radius:22px; --shadow:0 18px 50px rgba(2,8,23,.15); }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink)}
-    .wrap{max-width:1200px;margin:24px auto;padding:20px}
-    .top{display:flex;align-items:center;gap:12px}
-    .brand{display:flex;align-items:center;gap:10px;font-weight:800}
-    .brand .dot{width:24px;height:24px;border-radius:999px;background:var(--brand)}
-    .grow{flex:1}
-    .help{font-size:14px;color:var(--muted)}
+    :root {
+      --primary: #1a73e8;
+      --primary-dark: #0b4abf;
+      --on-primary: #ffffff;
+      --surface: rgba(255, 255, 255, 0.96);
+      --surface-variant: rgba(244, 246, 252, 0.95);
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: rgba(148, 163, 184, 0.28);
+      --radius-lg: 28px;
+      --radius-md: 20px;
+      --shadow: 0 28px 60px rgba(15, 23, 42, 0.22);
+    }
 
-    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid #e2e8f0}
-    .stage{display:grid;grid-template-columns:1.1fr 2fr;gap:18px}
-    .left{padding:22px;border-right:1px solid #e2e8f0}
-    .right{padding:22px}
+    * {
+      box-sizing: border-box;
+    }
 
-    .step{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-    .step .num{width:34px;height:34px;border-radius:12px;background:#eff6ff;color:#1d4ed8;font-weight:800;display:grid;place-items:center}
-    .step .title{font-weight:800}
+    body {
+      margin: 0;
+      font-family: 'Roboto', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(160deg, #111827 0%, #1d4ed8 55%, #38bdf8 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
 
-    .form{display:grid;gap:14px}
-    .input{width:100%;padding:16px 16px;border-radius:14px;border:1px solid #cbd5e1;font-size:18px}
-    .row{display:flex;gap:12px}
-    .row>.input{flex:1}
+    .app-frame {
+      width: 100%;
+      max-width: 1240px;
+      background: var(--surface);
+      border-radius: 32px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      backdrop-filter: blur(26px);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+    }
 
-    .btn{min-height:60px;padding:16px 20px;border-radius:16px;border:1px solid #cbd5e1;background:#fff;font-weight:800;cursor:pointer}
-    .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
-    .btn.ghost{background:#f8fafc}
-    .btn:active{transform:translateY(1px)}
-    .btn:disabled{opacity:0.5;cursor:not-allowed}
+    .app-bar {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 26px 32px;
+      background: linear-gradient(95deg, rgba(26, 115, 232, 0.92), rgba(59, 130, 246, 0.88));
+      color: #fff;
+    }
 
-    .table{width:100%;border-collapse:separate;border-spacing:0 10px}
-    .table th{font-size:14px;color:var(--muted);text-align:left;padding:0 12px}
-    .table td{background:#fff;border:1px solid #e2e8f0;padding:14px 12px}
-    .table tr td:first-child{border-radius:12px 0 0 12px}
-    .table tr td:last-child{border-radius:0 12px 12px 0}
+    .icon-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      border: none;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-size: 24px;
+      font-weight: 600;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
 
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .muted{color:var(--muted)}
-    .kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .kpi .box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px}
-    .box h4{margin:0 0 6px;font-size:14px;color:#334155}
-    .box .v{font-weight:800;font-size:20px}
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
 
-    .footer{margin-top:16px;display:flex;justify-content:space-between;align-items:center}
+    .icon-btn:active {
+      transform: translateY(1px);
+    }
 
-    .skeleton{background:linear-gradient(90deg,#eee,#f5f5f5,#eee);background-size:200% 100%;animation:s 1.2s linear infinite;border-radius:12px}
-    @keyframes s{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    .bar-text h1 {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
 
-    .numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-    .key{padding:18px 0;border:1px solid #cbd5e1;border-radius:14px;background:#fff;font-weight:800;font-size:22px;cursor:pointer}
-    .key:active{transform:scale(0.95)}
+    .bar-text p {
+      margin: 6px 0 0;
+      font-size: 14px;
+      opacity: 0.85;
+    }
 
-    .status{padding:12px;border-radius:12px;margin:10px 0;font-weight:600}
-    .status.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
-    .status.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
-    .status.info{background:#d1ecf1;color:#0c5460;border:1px solid #bee5eb}
+    .printer-pill {
+      margin-left: auto;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: 0.02em;
+    }
 
-    /* Böyük təqvim üçün stil */
-    .flatpickr-current-month .cur-year,
-    .flatpickr-current-month .numInput.cur-year {
-      font-size: 28px;
+    .printer-pill.success {
+      background: rgba(16, 185, 129, 0.24);
+      color: #064e3b;
+    }
+
+    .printer-pill.error {
+      background: rgba(248, 113, 113, 0.25);
+      color: #7f1d1d;
+    }
+
+    .app-body {
+      display: flex;
+      gap: 28px;
+      padding: 32px;
+    }
+
+    .card {
+      background: var(--surface-variant);
+      border-radius: var(--radius-lg);
+      padding: 30px 34px;
+      box-shadow: 0 20px 55px rgba(15, 23, 42, 0.12);
+      border: 1px solid var(--border);
+    }
+
+    .flow-card {
+      flex: 1.6;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .summary-card {
+      flex: 0.9;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      background: linear-gradient(180deg, rgba(244, 247, 252, 0.92), rgba(255, 255, 255, 0.98));
+    }
+
+    .flow-step {
+      background: rgba(244, 246, 252, 0.92);
+      border-radius: var(--radius-md);
+      padding: 24px 26px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .divider {
+      height: 1px;
+      background: rgba(148, 163, 184, 0.28);
+      margin: -6px 0;
+    }
+
+    .step-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: var(--primary);
+      color: var(--on-primary);
       font-weight: 700;
-      line-height: 40px;
-      height: 40px;
-      width: 90px;
-    }
-    .flatpickr-current-month .flatpickr-monthDropdown-months {
-      font-size: 22px;
-      height: 40px;
-      padding: 4px 8px;
-    }
-    .flatpickr-months .flatpickr-month {
-      height: 64px;
-    }
-    .flatpickr-months .flatpickr-prev-month,
-    .flatpickr-months .flatpickr-next-month {
-      width: 44px;
-      height: 44px;
-      transform: scale(1.25);
-    }
-    .numInput.cur-year,
-    input.cur-year {
-      font-size: 28px !important;
-      font-weight: 700 !important;
+      font-size: 18px;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 12px 24px rgba(26, 115, 232, 0.35);
     }
 
-    @media (max-width:1100px){ 
-      .stage{grid-template-columns:1fr} 
-      .left{border-right:none;border-bottom:1px solid #e2e8f0} 
+    .step-head h2 {
+      margin: 0;
+      font-size: 21px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .step-head p {
+      margin: 6px 0 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+
+    .input {
+      flex: 1;
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      font-size: 17px;
+      background: #fff;
+      transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.18);
+      outline: none;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 18px;
+      padding: 16px 20px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.12s ease, box-shadow 0.18s ease;
+    }
+
+    .btn.primary {
+      background: var(--primary);
+      color: var(--on-primary);
+      box-shadow: 0 18px 30px rgba(26, 115, 232, 0.35);
+    }
+
+    .btn.primary:hover {
+      box-shadow: 0 20px 38px rgba(26, 115, 232, 0.45);
+    }
+
+    .btn.ghost {
+      background: rgba(26, 115, 232, 0.08);
+      color: var(--primary);
+      border: 1px solid rgba(26, 115, 232, 0.18);
+    }
+
+    .btn.secondary {
+      background: rgba(15, 23, 42, 0.08);
+      color: var(--text);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    #paymentStatus {
+      min-height: 68px;
+    }
+
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .key {
+      padding: 18px 0;
+      border-radius: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.38);
+      background: #fff;
+      font-weight: 700;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+      transition: transform 0.12s ease, box-shadow 0.18s ease;
+    }
+
+    .key:active {
+      transform: scale(0.97);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+    }
+
+    .status {
+      padding: 16px 18px;
+      border-radius: 18px;
+      margin-top: 12px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    .status.info {
+      background: rgba(59, 130, 246, 0.1);
+      color: #1d4ed8;
+      border-color: rgba(59, 130, 246, 0.25);
+    }
+
+    .status.success {
+      background: rgba(34, 197, 94, 0.12);
+      color: #166534;
+      border-color: rgba(34, 197, 94, 0.28);
+    }
+
+    .status.error {
+      background: rgba(248, 113, 113, 0.12);
+      color: #7f1d1d;
+      border-color: rgba(248, 113, 113, 0.28);
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .kpi {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .box {
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 18px;
+      padding: 18px 20px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    .box h4 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .box .v {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .credit-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 12px;
+    }
+
+    .table th {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: left;
+      padding: 0 12px;
+    }
+
+    .table td {
+      background: #fff;
+      border: 1px solid rgba(148, 163, 184, 0.32);
+      padding: 16px 14px;
+      font-size: 15px;
+      color: var(--text);
+    }
+
+    .table tr td:first-child {
+      border-radius: 16px 0 0 16px;
+      width: 56px;
+      text-align: center;
+    }
+
+    .table tr td:last-child {
+      border-radius: 0 16px 16px 0;
+    }
+
+    .table input[type="radio"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--primary);
+    }
+
+    .summary-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .summary-item {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      padding: 18px 20px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .summary-item .label {
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .summary-item .value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .summary-note {
+      margin-top: auto;
+      font-size: 14px;
+      color: var(--muted);
+      background: rgba(59, 130, 246, 0.12);
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(59, 130, 246, 0.24);
+    }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px 32px;
+    }
+
+    .footer .muted {
+      font-size: 13px;
+    }
+
+    @media (max-width: 1100px) {
+      body {
+        padding: 24px;
+      }
+
+      .app-frame {
+        border-radius: 26px;
+      }
+
+      .app-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .printer-pill {
+        margin-left: 0;
+      }
+
+      .app-body {
+        flex-direction: column;
+      }
+
+      .summary-card {
+        order: -1;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 16px;
+      }
+
+      .app-bar {
+        padding: 22px;
+      }
+
+      .bar-text h1 {
+        font-size: 24px;
+      }
+
+      .app-body {
+        padding: 22px;
+      }
+
+      .card {
+        padding: 22px 20px;
+      }
+
+      .flow-step {
+        padding: 20px;
+      }
+
+      .quick-actions {
+        gap: 8px;
+      }
+
+      .summary-item .value {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div class="brand"><div class="dot"></div> <span>Kredit ödənişi</span></div>
-      <div class="grow"></div>
-      <div class="help">ID/FIN + Doğum tarixi → kredit seç → məbləğ → ödəniş</div>
-    </div>
+  <div class="app-frame">
+    <header class="app-bar">
+      <button type="button" class="icon-btn" id="btnAppBack" aria-label="Geri">
+        ←
+      </button>
+      <div class="bar-text">
+        <h1>Kredit ödənişi</h1>
+        <p>ID/FIN + Doğum tarixi → kredit seç → məbləğ → ödəniş</p>
+      </div>
+      <div class="printer-pill" id="printerStatusPill">Printer yoxlanılır...</div>
+    </header>
 
-    <div class="card stage" id="stage">
-      <div class="left">
-        <div class="step"><div class="num">1</div><div class="title">Müştəri identifikasiyası</div></div>
-        <form class="form" id="formId">
-          <input class="input" id="custId" placeholder="Müştəri ID-si və ya FIN kod" autocomplete="off" />
-          <div class="row">
-            <input class="input" id="dob" type="date" placeholder="Doğum tarixi" />
-            <button type="submit" class="btn primary" id="btnLookup">Axtar</button>
+    <main class="app-body">
+      <section class="card flow-card" id="stage">
+        <div class="flow-step">
+          <div class="step-head">
+            <span class="badge">1</span>
+            <div>
+              <h2>Müştəri identifikasiyası</h2>
+              <p>İD/FIN və doğum tarixi daxil edin</p>
+            </div>
           </div>
-          <div class="muted">* Ən azı bir ID/FIN + doğum tarixi tələb olunur</div>
-        </form>
-
-        <hr style="margin:18px 0;border:none;border-top:1px dashed #e2e8f0"/>
-
-        <div class="step"><div class="num">2</div><div class="title">Kredit seçimi</div></div>
-        <div id="custSummary" class="muted">Müştəri tapılmadı. Məlumatları daxil edin və "Axtar".</div>
-        <div id="creditsWrap" style="display:none">
-          <div class="kpi">
-            <div class="box"><h4>Ad, Soyad</h4><div class="v" id="fullName">—</div></div>
-            <div class="box"><h4>Kreditlərin sayı</h4><div class="v" id="kCount">0</div></div>
-          </div>
-          <div style="margin:12px 0 6px" class="muted">Kreditlər</div>
-          <table class="table" id="tblCredits">
-            <thead>
-              <tr><th></th><th>Müqavilə</th><th>Bank</th><th>Qalıq (₼)</th><th>Gecikmə</th></tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+          <form class="form" id="formId">
+            <input class="input" id="custId" placeholder="Müştəri ID-si və ya FIN kod" autocomplete="off" />
+            <div class="row">
+              <input class="input" id="dob" type="date" placeholder="Doğum tarixi" />
+              <button type="submit" class="btn primary" id="btnLookup">Axtar</button>
+            </div>
+            <div class="muted">* Ən azı bir ID/FIN + doğum tarixi tələb olunur</div>
+          </form>
         </div>
 
-        <hr style="margin:18px 0;border:none;border-top:1px dashed #e2e8f0"/>
+        <div class="divider"></div>
 
-        <div class="step"><div class="num">3</div><div class="title">Ödəniş</div></div>
-        <form class="form" id="formPay" style="display:none">
-          <div class="grid2">
-            <input class="input" id="amount" type="number" min="1" step="0.01" placeholder="Məbləğ (₼)" required />
-            <input class="input" id="note" placeholder="Qeyd (istəyə bağlı)" />
+        <div class="flow-step">
+          <div class="step-head">
+            <span class="badge">2</span>
+            <div>
+              <h2>Kredit seçimi</h2>
+              <p>Uyğun müqaviləni seçin</p>
+            </div>
           </div>
-          <div style="margin-top:8px;display:flex;gap:8px">
-            <button type="button" class="btn" id="btnPayAll">Tam borcu ödə</button>
-            <button type="button" class="btn" id="btn5">+5 ₼</button>
-            <button type="button" class="btn" id="btn10">+10 ₼</button>
-            <button type="button" class="btn" id="btn50">+50 ₼</button>
+          <div id="custSummary" class="muted">Müştəri tapılmadı. Məlumatları daxil edin və "Axtar".</div>
+          <div id="creditsWrap" class="credit-wrapper" style="display:none">
+            <div class="kpi">
+              <div class="box"><h4>Ad, Soyad</h4><div class="v" id="fullName">—</div></div>
+              <div class="box"><h4>Kreditlərin sayı</h4><div class="v" id="kCount">0</div></div>
+            </div>
+            <div class="section-label">Mövcud kreditlər</div>
+            <table class="table" id="tblCredits">
+              <thead>
+                <tr><th></th><th>Müqavilə</th><th>Bank</th><th>Qalıq (₼)</th><th>Gecikmə</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
           </div>
-          <div style="margin-top:8px" class="numpad" id="numpad">
-            <button type="button" class="key">1</button>
-            <button type="button" class="key">2</button>
-            <button type="button" class="key">3</button>
-            <button type="button" class="key">4</button>
-            <button type="button" class="key">5</button>
-            <button type="button" class="key">6</button>
-            <button type="button" class="key">7</button>
-            <button type="button" class="key">8</button>
-            <button type="button" class="key">9</button>
-            <button type="button" class="key">00</button>
-            <button type="button" class="key">0</button>
-            <button type="button" class="key" data-del>⌫</button>
-          </div>
-          <div id="paymentStatus"></div>
-          <div class="row">
-            <button type="button" class="btn ghost" id="btnBack">← Geri</button>
-            <button type="submit" class="btn primary" id="btnPay">Ödənişi təsdiqlə</button>
-          </div>
-        </form>
-      </div>
-
-      <div class="right">
-        <div class="step"><div class="num">4</div><div class="title">Məlumat xülasəsi</div></div>
-        <div class="kpi">
-          <div class="box"><h4>Seçilən kredit</h4><div class="v" id="selContract">—</div></div>
-          <div class="box"><h4>Ödənilməli məbləğ</h4><div class="v" id="due">—</div></div>
-          <div class="box"><h4>Ad, Soyad</h4><div class="v" id="namePreview">—</div></div>
-          <div class="box"><h4>Bank</h4><div class="v" id="bankName">—</div></div>
         </div>
 
-        <div style="margin-top:16px" class="muted">Qeyd: Nağd ödəniş avadanlığı və real printer ilə inteqrasiya.</div>
-      </div>
-    </div>
+        <div class="divider"></div>
 
-    <div class="footer">
-      <button class="btn" onclick="history.back()">← Geri (Ana səhifə)</button>
+        <div class="flow-step">
+          <div class="step-head">
+            <span class="badge">3</span>
+            <div>
+              <h2>Ödəniş</h2>
+              <p>Məbləği daxil edin və təsdiqləyin</p>
+            </div>
+          </div>
+          <form class="form" id="formPay" style="display:none">
+            <div class="grid2">
+              <input class="input" id="amount" type="number" min="1" step="0.01" placeholder="Məbləğ (₼)" required />
+              <input class="input" id="note" placeholder="Qeyd (istəyə bağlı)" />
+            </div>
+            <div class="quick-actions">
+              <button type="button" class="btn ghost" id="btnPayAll">Tam borcu ödə</button>
+              <button type="button" class="btn ghost" id="btn5">+5 ₼</button>
+              <button type="button" class="btn ghost" id="btn10">+10 ₼</button>
+              <button type="button" class="btn ghost" id="btn50">+50 ₼</button>
+            </div>
+            <div class="numpad" id="numpad">
+              <button type="button" class="key">1</button>
+              <button type="button" class="key">2</button>
+              <button type="button" class="key">3</button>
+              <button type="button" class="key">4</button>
+              <button type="button" class="key">5</button>
+              <button type="button" class="key">6</button>
+              <button type="button" class="key">7</button>
+              <button type="button" class="key">8</button>
+              <button type="button" class="key">9</button>
+              <button type="button" class="key">00</button>
+              <button type="button" class="key">0</button>
+              <button type="button" class="key" data-del>⌫</button>
+            </div>
+            <div id="paymentStatus"></div>
+            <div class="row">
+              <button type="button" class="btn secondary" id="btnBack">← Geri</button>
+              <button type="submit" class="btn primary" id="btnPay">Ödənişi təsdiqlə</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <aside class="card summary-card">
+        <div class="step-head">
+          <span class="badge">4</span>
+          <div>
+            <h2>Məlumat xülasəsi</h2>
+            <p>Son dəfə yoxlayın</p>
+          </div>
+        </div>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="label">Seçilən kredit</span>
+            <span class="value" id="selContract">—</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Ödənilməli məbləğ</span>
+            <span class="value" id="due">—</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Ad, Soyad</span>
+            <span class="value" id="namePreview">—</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Bank</span>
+            <span class="value" id="bankName">—</span>
+          </div>
+        </div>
+        <div class="summary-note">Qeyd: Nağd ödəniş avadanlığı və printer inteqrasiyası aktivdir.</div>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      <div>
+        <button class="btn ghost" id="btnFooterBack">← Ana səhifə</button>
+      </div>
       <div class="muted">Terminal № 2312 • Dəstək: 8 800 250 57 57</div>
-    </div>
+    </footer>
   </div>
 
   <script>
@@ -206,6 +689,25 @@
     function addDebug(message) {
       const timestamp = new Date().toLocaleTimeString('az-AZ');
       console.log(`[${timestamp}] ${message}`);
+    }
+
+    function updatePrinterStatusPill(state, message) {
+      const pill = document.getElementById('printerStatusPill');
+      if (!pill) return;
+
+      pill.textContent = message;
+      pill.classList.remove('success', 'error');
+
+      if (state === 'success') {
+        pill.classList.add('success');
+      } else if (state === 'error') {
+        pill.classList.add('error');
+      }
+    }
+
+    function navigateHome() {
+      addDebug('Ana səhifəyə geri dönüş tələbi');
+      window.location.href = 'index.html';
     }
 
     // ============================================
@@ -242,7 +744,7 @@
     async function checkPrinterStatus(printerId = PRINTER_ID) {
       try {
         addDebug('Printer statusu yoxlanılır...');
-        
+
         const response = await fetch(`${PRINTER_BASE_URL}/api/getPrintStatus`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -252,18 +754,30 @@
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
-        
+
         const result = await response.json();
         addDebug(`Printer status cavabı: ${JSON.stringify(result)}`);
-        
-        if (result.isSuccess && result.data === "Printer Normal") {
-          addDebug('✓ Printer hazırdır');
-          return { success: true };
+
+        if (result.isSuccess) {
+          const dataStatus = typeof result.data === 'string' ? result.data : '';
+
+          if (dataStatus === "Printer Normal") {
+            addDebug('✓ Printer hazırdır');
+            updatePrinterStatusPill('success', 'Printer hazırdır');
+            return { success: true };
+          }
+
+          const message = dataStatus || result.errorMsg || 'Printer problemi';
+          updatePrinterStatusPill('error', message);
+          return { success: false, message };
         }
-        
-        return { success: false, message: result.errorMsg || "Printer problemi" };
+
+        const message = result.errorMsg || 'Printer statusu alınmadı';
+        updatePrinterStatusPill('error', message);
+        return { success: false, message };
       } catch (error) {
         addDebug(`✗ Printer status xətası: ${error.message}`);
+        updatePrinterStatusPill('error', error.message);
         return { success: false, message: error.message };
       }
     }
@@ -546,86 +1060,6 @@
         messages.includes('template not supported');
     }
 
-    function detectPrinterSuccess(parsed, rawText) {
-      if (parsed) {
-        if (parsed.isSuccess === true || parsed.success === true) {
-          return true;
-        }
-
-        if (parsed.isSuccess === false || parsed.success === false) {
-          return false;
-        }
-
-        if (typeof parsed.status === 'string' && /success|printed|ok/i.test(parsed.status)) {
-          return true;
-        }
-
-        if (typeof parsed.data === 'string' && /success|printed|ok/i.test(parsed.data)) {
-          return true;
-        }
-
-        if (parsed.errorCode === 200 && parsed.errorMsg == null) {
-          return true;
-        }
-      }
-
-      if (!rawText) {
-        return true;
-      }
-
-      return /success|printed|ok/i.test(rawText);
-    }
-
-    function extractPrinterMessage(parsed, rawText) {
-      if (parsed) {
-        if (typeof parsed.errorMsg === 'string' && parsed.errorMsg.trim()) {
-          return parsed.errorMsg.trim();
-        }
-
-        if (typeof parsed.message === 'string' && parsed.message.trim()) {
-          return parsed.message.trim();
-        }
-
-        if (typeof parsed.data === 'string' && parsed.data.trim() && !/success|printed|ok/i.test(parsed.data)) {
-          return parsed.data.trim();
-        }
-      }
-
-      if (rawText) {
-        return rawText;
-      }
-
-      return null;
-    }
-
-    function shouldFallbackToPlainText(result) {
-      if (!result || result.success) {
-        return false;
-      }
-
-      if (result.parsed && result.parsed.errorCode === 501) {
-        return true;
-      }
-
-      const messages = [
-        result.message,
-        result.error,
-        result.raw,
-        result.parsed && typeof result.parsed.errorMsg === 'string' ? result.parsed.errorMsg : null,
-        result.parsed && typeof result.parsed.message === 'string' ? result.parsed.message : null,
-        result.parsed && typeof result.parsed.data === 'string' ? result.parsed.data : null
-      ].filter(Boolean).join(' ').toLowerCase();
-
-      if (!messages) {
-        return false;
-      }
-
-      return messages.includes('invalid format') ||
-        messages.includes('param format') ||
-        messages.includes('template not support') ||
-        messages.includes('template not supported');
-    }
-
     // ============================================
     // NAĞD ÖDƏNİŞ PROSESİ
     // ============================================
@@ -816,7 +1250,7 @@
         
         addDebug(`Kredit seçildi: ${CURRENT.selected.contract}`);
         
-        formPay.style.display = 'grid';
+        formPay.style.display = 'flex';
         el('amount').value = CURRENT.selected.due.toFixed(2);
         el('note').value = '';
         el('paymentStatus').innerHTML = '';
@@ -997,10 +1431,22 @@
       addDebug(`Hardware URL: ${HARDWARE_BASE_URL}`);
       addDebug(`Printer ID: ${PRINTER_ID}`);
       addDebug('----------------------------------------');
-      
+
+      const appBackBtn = document.getElementById('btnAppBack');
+      if (appBackBtn) {
+        appBackBtn.addEventListener('click', navigateHome);
+      }
+
+      const footerBackBtn = document.getElementById('btnFooterBack');
+      if (footerBackBtn) {
+        footerBackBtn.addEventListener('click', navigateHome);
+      }
+
+      updatePrinterStatusPill(null, 'Printer yoxlanılır...');
+
       // Printer status yoxla
       const printerStatus = await checkPrinterStatus();
-      
+
       if (printerStatus.success) {
         addDebug('✓ Sistem hazırdır - ödəniş qəbul edilə bilər');
       } else {
