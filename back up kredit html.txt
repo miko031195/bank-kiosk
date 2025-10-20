@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Kredit ödənişi</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    :root{ --brand:#155EEF; --ink:#0f172a; --muted:#64748b; --bg:#f1f5f9; --card:#ffffff; --radius:22px; --shadow:0 18px 50px rgba(2,8,23,.15); }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+    .wrap{max-width:1200px;margin:24px auto;padding:20px}
+    .top{display:flex;align-items:center;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800}
+    .brand .dot{width:24px;height:24px;border-radius:999px;background:var(--brand)}
+    .grow{flex:1}
+    .help{font-size:14px;color:var(--muted)}
+
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid #e2e8f0}
+    .stage{display:grid;grid-template-columns:1.1fr 2fr;gap:18px}
+    .left{padding:22px;border-right:1px solid #e2e8f0}
+    .right{padding:22px}
+
+    .step{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+    .step .num{width:34px;height:34px;border-radius:12px;background:#eff6ff;color:#1d4ed8;font-weight:800;display:grid;place-items:center}
+    .step .title{font-weight:800}
+
+    .form{display:grid;gap:14px}
+    .input{width:100%;padding:16px 16px;border-radius:14px;border:1px solid #cbd5e1;font-size:18px}
+    .row{display:flex;gap:12px}
+    .row>.input{flex:1}
+
+    .btn{min-height:60px;padding:16px 20px;border-radius:16px;border:1px solid #cbd5e1;background:#fff;font-weight:800;cursor:pointer}
+    .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+    .btn.ghost{background:#f8fafc}
+    .btn:active{transform:translateY(1px)}
+    .btn:disabled{opacity:0.5;cursor:not-allowed}
+
+    .table{width:100%;border-collapse:separate;border-spacing:0 10px}
+    .table th{font-size:14px;color:var(--muted);text-align:left;padding:0 12px}
+    .table td{background:#fff;border:1px solid #e2e8f0;padding:14px 12px}
+    .table tr td:first-child{border-radius:12px 0 0 12px}
+    .table tr td:last-child{border-radius:0 12px 12px 0}
+
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .muted{color:var(--muted)}
+    .kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .kpi .box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px}
+    .box h4{margin:0 0 6px;font-size:14px;color:#334155}
+    .box .v{font-weight:800;font-size:20px}
+
+    .footer{margin-top:16px;display:flex;justify-content:space-between;align-items:center}
+
+    .skeleton{background:linear-gradient(90deg,#eee,#f5f5f5,#eee);background-size:200% 100%;animation:s 1.2s linear infinite;border-radius:12px}
+    @keyframes s{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    .numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .key{padding:18px 0;border:1px solid #cbd5e1;border-radius:14px;background:#fff;font-weight:800;font-size:22px;cursor:pointer}
+    .key:active{transform:scale(0.95)}
+
+    .status{padding:12px;border-radius:12px;margin:10px 0;font-weight:600}
+    .status.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+    .status.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+    .status.info{background:#d1ecf1;color:#0c5460;border:1px solid #bee5eb}
+
+    /* Böyük təqvim üçün stil */
+    .flatpickr-current-month .cur-year,
+    .flatpickr-current-month .numInput.cur-year {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 40px;
+      height: 40px;
+      width: 90px;
+    }
+    .flatpickr-current-month .flatpickr-monthDropdown-months {
+      font-size: 22px;
+      height: 40px;
+      padding: 4px 8px;
+    }
+    .flatpickr-months .flatpickr-month {
+      height: 64px;
+    }
+    .flatpickr-months .flatpickr-prev-month,
+    .flatpickr-months .flatpickr-next-month {
+      width: 44px;
+      height: 44px;
+      transform: scale(1.25);
+    }
+    .numInput.cur-year,
+    input.cur-year {
+      font-size: 28px !important;
+      font-weight: 700 !important;
+    }
+
+    @media (max-width:1100px){ 
+      .stage{grid-template-columns:1fr} 
+      .left{border-right:none;border-bottom:1px solid #e2e8f0} 
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand"><div class="dot"></div> <span>Kredit ödənişi</span></div>
+      <div class="grow"></div>
+      <div class="help">ID/FIN + Doğum tarixi → kredit seç → məbləğ → ödəniş</div>
+    </div>
+
+    <div class="card stage" id="stage">
+      <div class="left">
+        <div class="step"><div class="num">1</div><div class="title">Müştəri identifikasiyası</div></div>
+        <form class="form" id="formId">
+          <input class="input" id="custId" placeholder="Müştəri ID-si və ya FIN kod" autocomplete="off" />
+          <div class="row">
+            <input class="input" id="dob" type="date" placeholder="Doğum tarixi" />
+            <button type="submit" class="btn primary" id="btnLookup">Axtar</button>
+          </div>
+          <div class="muted">* Ən azı bir ID/FIN + doğum tarixi tələb olunur</div>
+        </form>
+
+        <hr style="margin:18px 0;border:none;border-top:1px dashed #e2e8f0"/>
+
+        <div class="step"><div class="num">2</div><div class="title">Kredit seçimi</div></div>
+        <div id="custSummary" class="muted">Müştəri tapılmadı. Məlumatları daxil edin və "Axtar".</div>
+        <div id="creditsWrap" style="display:none">
+          <div class="kpi">
+            <div class="box"><h4>Ad, Soyad</h4><div class="v" id="fullName">—</div></div>
+            <div class="box"><h4>Kreditlərin sayı</h4><div class="v" id="kCount">0</div></div>
+          </div>
+          <div style="margin:12px 0 6px" class="muted">Kreditlər</div>
+          <table class="table" id="tblCredits">
+            <thead>
+              <tr><th></th><th>Müqavilə</th><th>Bank</th><th>Qalıq (₼)</th><th>Gecikmə</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <hr style="margin:18px 0;border:none;border-top:1px dashed #e2e8f0"/>
+
+        <div class="step"><div class="num">3</div><div class="title">Ödəniş</div></div>
+        <form class="form" id="formPay" style="display:none">
+          <div class="grid2">
+            <input class="input" id="amount" type="number" min="1" step="0.01" placeholder="Məbləğ (₼)" required />
+            <input class="input" id="note" placeholder="Qeyd (istəyə bağlı)" />
+          </div>
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <button type="button" class="btn" id="btnPayAll">Tam borcu ödə</button>
+            <button type="button" class="btn" id="btn5">+5 ₼</button>
+            <button type="button" class="btn" id="btn10">+10 ₼</button>
+            <button type="button" class="btn" id="btn50">+50 ₼</button>
+          </div>
+          <div style="margin-top:8px" class="numpad" id="numpad">
+            <button type="button" class="key">1</button>
+            <button type="button" class="key">2</button>
+            <button type="button" class="key">3</button>
+            <button type="button" class="key">4</button>
+            <button type="button" class="key">5</button>
+            <button type="button" class="key">6</button>
+            <button type="button" class="key">7</button>
+            <button type="button" class="key">8</button>
+            <button type="button" class="key">9</button>
+            <button type="button" class="key">00</button>
+            <button type="button" class="key">0</button>
+            <button type="button" class="key" data-del>⌫</button>
+          </div>
+          <div id="paymentStatus"></div>
+          <div class="row">
+            <button type="button" class="btn ghost" id="btnBack">← Geri</button>
+            <button type="submit" class="btn primary" id="btnPay">Ödənişi təsdiqlə</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="right">
+        <div class="step"><div class="num">4</div><div class="title">Məlumat xülasəsi</div></div>
+        <div class="kpi">
+          <div class="box"><h4>Seçilən kredit</h4><div class="v" id="selContract">—</div></div>
+          <div class="box"><h4>Ödənilməli məbləğ</h4><div class="v" id="due">—</div></div>
+          <div class="box"><h4>Ad, Soyad</h4><div class="v" id="namePreview">—</div></div>
+          <div class="box"><h4>Bank</h4><div class="v" id="bankName">—</div></div>
+        </div>
+
+        <div style="margin-top:16px" class="muted">Qeyd: Nağd ödəniş avadanlığı və real printer ilə inteqrasiya.</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <button class="btn" onclick="history.back()">← Geri (Ana səhifə)</button>
+      <div class="muted">Terminal № 2312 • Dəstək: 8 800 250 57 57</div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // KONFIQURASIYA
+    // ============================================
+    const PRINTER_BASE_URL = "http://10.66.66.63:8080";
+    const HARDWARE_BASE_URL = "http://10.66.66.63:8080";
+    const PRINTER_ID = "1";
+
+    // ============================================
+    // DEBUG FUNKSIYASI
+    // ============================================
+    function addDebug(message) {
+      const timestamp = new Date().toLocaleTimeString('az-AZ');
+      console.log(`[${timestamp}] ${message}`);
+    }
+
+    // ============================================
+    // DEMO VERILƏNLƏR BAZASI
+    // ============================================
+    const MOCK_DB = {
+      "A12345|8Q9ABCD|1990-05-20": { 
+        fullName: "Rəşad Quliyev", 
+        credits: [
+          { contract: "CR-2021-001", bank: "HALAL-P Bank", due: 258.40, overdue: "0 gün" },
+          { contract: "CR-2022-145", bank: "HALAL-P Bank", due: 1320.00, overdue: "5 gün" }
+        ] 
+      },
+      "98210|3DF7K2L|1987-01-10": { 
+        fullName: "Könül Məmmədova", 
+        credits: [
+          { contract: "CR-2019-778", bank: "HALAL-P Bank", due: 75.00, overdue: "0 gün" }
+        ] 
+      }
+    };
+
+    // ============================================
+    // MÜŞTƏRİ AXTARIŞI
+    // ============================================
+    function findCustomer(idOrFin, dob) {
+      return Object.keys(MOCK_DB)
+        .map(k => ({ k, parts: k.split('|') }))
+        .find(({ parts }) => (parts[0] === idOrFin || parts[1] === idOrFin) && parts[2] === dob);
+    }
+
+    // ============================================
+    // PRINTER STATUSU YOXLAMASI
+    // ============================================
+    async function checkPrinterStatus(printerId = PRINTER_ID) {
+      try {
+        addDebug('Printer statusu yoxlanılır...');
+        
+        const response = await fetch(`${PRINTER_BASE_URL}/api/getPrintStatus`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: printerId })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const result = await response.json();
+        addDebug(`Printer status cavabı: ${JSON.stringify(result)}`);
+        
+        if (result.isSuccess && result.data === "Printer Normal") {
+          addDebug('✓ Printer hazırdır');
+          return { success: true };
+        }
+        
+        return { success: false, message: result.errorMsg || "Printer problemi" };
+      } catch (error) {
+        addDebug(`✗ Printer status xətası: ${error.message}`);
+        return { success: false, message: error.message };
+      }
+    }
+
+    // ============================================
+    // QƏBZ ÇAP FUNKSIYASI (İSTEHSALÇI FORMATI)
+    // ============================================
+    async function printReceipt(receiptData, printerId = PRINTER_ID) {
+      try {
+        addDebug("Qəbz hazırlanır...");
+        
+        const currentDate = new Date();
+        const dateStr = currentDate.toLocaleDateString('az-AZ');
+        const timeStr = currentDate.toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' });
+        
+        // İstehsalçı formatına uyğun sadə mətn
+        let receiptContent = "";
+        
+        // Başlıq
+        receiptContent += "===========================\n";
+        receiptContent += "     HALAL-P BANK\n";
+        receiptContent += "   Kredit Ödəniş Qəbzi\n";
+        receiptContent += "    Nardaran filialı\n";
+        receiptContent += "===========================\n";
+        receiptContent += `Tarix: ${dateStr}  Saat: ${timeStr}\n`;
+        receiptContent += "---------------------------\n\n";
+        
+        // Müştəri məlumatları
+        receiptContent += "MÜŞTƏRİ:\n";
+        receiptContent += `Ad: ${receiptData.customer}\n`;
+        receiptContent += `Müqavilə: ${receiptData.contract}\n`;
+        receiptContent += `Bank: ${receiptData.bank}\n`;
+        receiptContent += "---------------------------\n\n";
+        
+        // Ödəniş məlumatları
+        receiptContent += "ÖDƏNİŞ:\n";
+        receiptContent += `Məbləğ:         ${receiptData.paid.toFixed(2)} AZN\n`;
+        receiptContent += `Növ:            Nağd\n`;
+        
+        if (receiptData.note && receiptData.note.trim()) {
+          receiptContent += `Qeyd:           ${receiptData.note}\n`;
+        }
+        
+        if (receiptData.transaction_id) {
+          const shortTxId = receiptData.transaction_id.substring(0, 18);
+          receiptContent += `Tranzaksiya ID: ${shortTxId}\n`;
+        }
+        
+        receiptContent += "===========================\n\n";
+        
+        // Alt hissə
+        receiptContent += "  Terminal № 2312 • Nardaran\n";
+        receiptContent += "      Təşəkkür edirik!\n\n\n";
+        
+        addDebug(`Qəbz məzmunu: ${receiptContent.length} simvol`);
+        
+        // İstehsalçı API formatı: stringByPicture
+        const printResponse = await fetch(`${PRINTER_BASE_URL}/api/printSetting`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            id: printerId,
+            type: "stringByPicture",
+            data: receiptContent
+          })
+        });
+        
+        if (!printResponse.ok) {
+          throw new Error(`HTTP ${printResponse.status}`);
+        }
+        
+        const printResult = await printResponse.json();
+        addDebug(`Çap nəticəsi: ${JSON.stringify(printResult)}`);
+        
+        if (printResult.isSuccess) {
+          addDebug('✓ Qəbz uğurla çap olundu');
+          
+          // Kağızı kəs (opsional)
+          try {
+            await fetch(`${PRINTER_BASE_URL}/api/printSetting`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id: printerId,
+                type: "cut",
+                data: "half"
+              })
+            });
+            addDebug('✓ Kağız kəsildi');
+          } catch (cutError) {
+            addDebug(`⚠ Kağız kəsilmə xətası: ${cutError.message}`);
+          }
+          
+          return { success: true };
+        } else {
+          throw new Error(printResult.errorMsg || "Çap xətası");
+        }
+      } catch (error) {
+        addDebug(`✗ Çap xətası: ${error.message}`);
+        return { success: false, error: error.message };
+      }
+    }
+
+    // ============================================
+    // NAĞD ÖDƏNİŞ PROSESİ
+    // ============================================
+    async function processPayment(amount) {
+      const statusDiv = document.getElementById('paymentStatus');
+      const btnPay = document.getElementById('btnPay');
+      
+      try {
+        btnPay.disabled = true;
+        statusDiv.innerHTML = '<div class="status info">⏳ Ödəniş avadanlığı ilə əlaqə qurulur...</div>';
+        
+        addDebug(`Ödəniş başladı: ${amount.toFixed(2)} AZN`);
+        
+        // Hardware API-yə ödəniş sorğusu
+        const paymentResp = await fetch(`${HARDWARE_BASE_URL}/api/payment`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount: amount.toFixed(2) })
+        });
+        
+        if (!paymentResp.ok) {
+          throw new Error(`Hardware API xətası: ${paymentResp.status}`);
+        }
+        
+        const respData = await paymentResp.json();
+        addDebug(`Hardware cavab: ${JSON.stringify(respData)}`);
+        
+        // UUID/Transaction ID əldə et
+        let uuid = respData.data?.uuid || respData.uuid || respData.transaction_id;
+        if (!uuid) {
+          throw new Error("UUID/Transaction ID alınmadı");
+        }
+        
+        addDebug(`Transaction UUID: ${uuid}`);
+        statusDiv.innerHTML = `<div class="status info">💵 Zəhmət olmasa ${amount.toFixed(2)} AZN nağd daxil edin...</div>`;
+        
+        // Status yoxlanışı (polling)
+        return new Promise((resolve, reject) => {
+          let checkCount = 0;
+          const maxChecks = 300; // 5 dəqiqə (300 saniyə)
+          
+          const interval = setInterval(async () => {
+            checkCount++;
+            
+            if (checkCount > maxChecks) {
+              clearInterval(interval);
+              reject(new Error("Ödəniş vaxtı bitdi (5 dəqiqə)"));
+              return;
+            }
+            
+            try {
+              const stResp = await fetch(`${HARDWARE_BASE_URL}/api/query`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ uuid })
+              });
+              
+              if (!stResp.ok) {
+                throw new Error(`Status API xətası: ${stResp.status}`);
+              }
+              
+              const stData = await stResp.json();
+              const st = stData.data || stData;
+              
+              let status = st.info?.status || st.status || "unknown";
+              let paidAmount = Number(st.info?.pay_amount || st.paid || 0);
+              
+              addDebug(`Status yoxlanışı #${checkCount}: ${status}, Ödənilən: ${paidAmount}`);
+              
+              // Ödəniş tamamlandı
+              if (status === "completed" || status === "payment is completed") {
+                if (paidAmount >= amount) {
+                  clearInterval(interval);
+                  addDebug(`✓ Ödəniş tamamlandı: ${paidAmount.toFixed(2)} AZN`);
+                  resolve({ success: true, uuid: uuid, paid: paidAmount });
+                } else {
+                  statusDiv.innerHTML = `<div class="status error">⚠ Kifayət etmir! Ödənilən: ${paidAmount.toFixed(2)} AZN / Lazım: ${amount.toFixed(2)} AZN</div>`;
+                }
+              } 
+              // Xəta statusları
+              else if (["error", "jam", "full", "reject", "cancelled", "timeout"].includes(status)) {
+                clearInterval(interval);
+                addDebug(`✗ Avadanlıq xətası: ${status}`);
+                reject(new Error(`Avadanlıq xətası: ${status}`));
+              } 
+              // Gözləmə statusları
+              else if (["waiting", "pending", "accepting", "paying", "processing"].includes(status)) {
+                if (paidAmount > 0) {
+                  const remaining = amount - paidAmount;
+                  statusDiv.innerHTML = `<div class="status info">💰 Daxil edildi: ${paidAmount.toFixed(2)} AZN<br>📊 Qalan: ${remaining.toFixed(2)} AZN</div>`;
+                } else {
+                  statusDiv.innerHTML = `<div class="status info">⏳ Pul gözlənilir... Lazım olan məbləğ: ${amount.toFixed(2)} AZN</div>`;
+                }
+              }
+            } catch (e) {
+              addDebug(`⚠ Status yoxlanış xətası: ${e.message}`);
+            }
+          }, 1000); // Hər saniyə yoxla
+        });
+        
+      } catch (error) {
+        addDebug(`✗ Ödəniş xətası: ${error.message}`);
+        statusDiv.innerHTML = `<div class="status error">✗ Xəta: ${error.message}</div>`;
+        btnPay.disabled = false;
+        throw error;
+      }
+    }
+
+    // ============================================
+    // GLOBAL STATE
+    // ============================================
+    let CURRENT = { customer: null, selected: null };
+
+    // ============================================
+    // DOM ELEMENTLƏRI
+    // ============================================
+    const el = (id) => document.getElementById(id);
+    const formId = el('formId');
+    const formPay = el('formPay');
+
+    // ============================================
+    // 1. MÜŞTƏRİ AXTARIŞI
+    // ============================================
+    formId.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const id = el('custId').value.trim();
+      const dob = el('dob').value;
+      
+      if (!id || !dob) {
+        alert('⚠ Zəhmət olmasa ID/FIN və doğum tarixini daxil edin');
+        return;
+      }
+
+      addDebug(`Müştəri axtarılır: ID=${id}, DOB=${dob}`);
+      
+      el('custSummary').innerHTML = '<div class="skeleton" style="height:20px;width:60%"></div>';
+      await new Promise(r => setTimeout(r, 600)); // Simulyasiya
+
+      const found = findCustomer(id, dob);
+      
+      if (!found) {
+        addDebug('✗ Müştəri tapılmadı');
+        el('custSummary').textContent = '✗ Müştəri tapılmadı. Məlumatları yenidən yoxlayın.';
+        el('creditsWrap').style.display = 'none';
+        formPay.style.display = 'none';
+        CURRENT = { customer: null, selected: null };
+        updateSummary();
+        return;
+      }
+      
+      const data = MOCK_DB[found.k];
+      CURRENT.customer = data;
+      
+      addDebug(`✓ Müştəri tapıldı: ${data.fullName}, ${data.credits.length} kredit`);
+      
+      el('custSummary').textContent = '';
+      el('creditsWrap').style.display = 'block';
+      el('fullName').textContent = data.fullName;
+      el('kCount').textContent = data.credits.length;
+
+      const tbody = el('tblCredits').querySelector('tbody');
+      tbody.innerHTML = '';
+      
+      data.credits.forEach((c, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input type="radio" name="credit" value="${idx}"></td>
+          <td>${c.contract}</td>
+          <td>${c.bank}</td>
+          <td>${c.due.toFixed(2)}</td>
+          <td>${c.overdue}</td>`;
+        tbody.appendChild(tr);
+      });
+
+      formPay.style.display = 'none';
+      CURRENT.selected = null;
+      updateSummary();
+    });
+
+    // ============================================
+    // 2. KREDİT SEÇİMİ
+    // ============================================
+    document.addEventListener('change', (e) => {
+      if (e.target && e.target.name === 'credit') {
+        const idx = parseInt(e.target.value, 10);
+        CURRENT.selected = CURRENT.customer.credits[idx];
+        
+        addDebug(`Kredit seçildi: ${CURRENT.selected.contract}`);
+        
+        formPay.style.display = 'grid';
+        el('amount').value = CURRENT.selected.due.toFixed(2);
+        el('note').value = '';
+        el('paymentStatus').innerHTML = '';
+        
+        updateSummary();
+      }
+    });
+
+    // ============================================
+    // 3. MƏBLƏĞ DÜYMƏLƏRI
+    // ============================================
+    el('btnPayAll').addEventListener('click', () => {
+      if (CURRENT.selected) {
+        el('amount').value = CURRENT.selected.due.toFixed(2);
+        addDebug(`Tam borc: ${CURRENT.selected.due.toFixed(2)} AZN`);
+      }
+    });
+
+    el('btn5').addEventListener('click', () => bump(5));
+    el('btn10').addEventListener('click', () => bump(10));
+    el('btn50').addEventListener('click', () => bump(50));
+
+    function bump(x) {
+      const v = parseFloat(el('amount').value || 0);
+      el('amount').value = (isFinite(v) ? v : 0) + x;
+      addDebug(`Məbləğ artırıldı +${x}: ${el('amount').value} AZN`);
+    }
+
+    // ============================================
+    // 4. NUMPAD (RƏQƏM KLAVİATURASI)
+    // ============================================
+    el('numpad').addEventListener('click', (e) => {
+      if (!e.target.classList.contains('key')) return;
+      
+      const amountInput = el('amount');
+      
+      // Sil düyməsi (⌫)
+      if (e.target.hasAttribute('data-del')) {
+        amountInput.value = (amountInput.value + '').slice(0, -1);
+        addDebug(`Rəqəm silindi: ${amountInput.value}`);
+        return;
+      }
+      
+      const key = e.target.textContent.trim();
+      
+      // 00 düyməsi
+      if (key === '00') {
+        amountInput.value = (amountInput.value || '') + '00';
+        addDebug(`00 əlavə edildi: ${amountInput.value}`);
+        return;
+      }
+      
+      // Rəqəm düymələri
+      amountInput.value = (amountInput.value || '') + key;
+      addDebug(`Rəqəm əlavə edildi (${key}): ${amountInput.value}`);
+    });
+
+    // ============================================
+    // 5. ÖDƏNİŞ PROSESİ
+    // ============================================
+    formPay.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (!CURRENT.selected) {
+        alert('⚠ Zəhmət olmasa kredit seçin');
+        return;
+      }
+      
+      const amt = parseFloat(el('amount').value);
+      
+      if (!Number.isFinite(amt) || amt <= 0) {
+        alert('⚠ Məbləği düzgün daxil edin (məsələn: 100.50)');
+        return;
+      }
+
+      const statusDiv = el('paymentStatus');
+      const btnPay = el('btnPay');
+      
+      try {
+        addDebug(`=== ÖDƏNİŞ BAŞLADI ===`);
+        addDebug(`Məbləğ: ${amt.toFixed(2)} AZN`);
+        addDebug(`Müqavilə: ${CURRENT.selected.contract}`);
+        
+        // Ödəniş prosesi
+        statusDiv.innerHTML = '<div class="status info">⏳ Ödəniş başladı...</div>';
+        const paymentResult = await processPayment(amt);
+        
+        if (paymentResult.success) {
+          statusDiv.innerHTML = '<div class="status success">✓ Ödəniş qəbul edildi! Qəbz çap olunur...</div>';
+          
+          addDebug('✓ Ödəniş uğurla tamamlandı');
+          addDebug(`UUID: ${paymentResult.uuid}`);
+          addDebug(`Ödənilən: ${paymentResult.paid.toFixed(2)} AZN`);
+          
+          // Qəbz məlumatları
+          const receipt = {
+            time: new Date().toISOString(),
+            customer: CURRENT.customer.fullName,
+            contract: CURRENT.selected.contract,
+            bank: CURRENT.selected.bank,
+            paid: amt,
+            note: el('note').value,
+            transaction_id: paymentResult.uuid
+          };
+          
+          addDebug('=== QƏBZ ÇAP OLUNUR ===');
+          
+          // Qəbz çap et
+          const printResult = await printReceipt(receipt);
+          
+          if (printResult.success) {
+            addDebug('✓ Qəbz uğurla çap olundu');
+            statusDiv.innerHTML = '<div class="status success">✓✓ Ödəniş tamamlandı və qəbz çap olundu!<br>3 saniyə sonra ana səhifəyə yönləndirilirsiniz...</div>';
+            
+            // 3 saniyə geri sayım
+            let countdown = 3;
+            const countdownInterval = setInterval(() => {
+              countdown--;
+              if (countdown > 0) {
+                statusDiv.innerHTML = `<div class="status success">✓✓ Ödəniş tamamlandı və qəbz çap olundu!<br>${countdown} saniyə sonra ana səhifəyə yönləndirilirsiniz...</div>`;
+              } else {
+                clearInterval(countdownInterval);
+                addDebug('Ana səhifəyə yönləndirilir...');
+                window.location.href = 'index.html';
+              }
+            }, 1000);
+          } else {
+            addDebug(`⚠ Çap xətası: ${printResult.error}`);
+            statusDiv.innerHTML = '<div class="status error">⚠ Ödəniş oldu, lakin qəbz çap edilmədi!<br>Administratorla əlaqə saxlayın.<br>3 saniyə sonra ana səhifəyə yönləndirilirsiniz...</div>';
+            
+            // Çap xətası olsa belə 3 saniyə sonra ana səhifəyə yönləndir
+            setTimeout(() => {
+              addDebug('Ana səhifəyə yönləndirilir (çap xətası)');
+              window.location.href = 'index.html';
+            }, 3000);
+          }
+        }
+      } catch (error) {
+        addDebug(`✗✗ XƏTA: ${error.message}`);
+        statusDiv.innerHTML = `<div class="status error">✗ Xəta: ${error.message}<br>Zəhmət olmasa yenidən cəhd edin və ya administratorla əlaqə saxlayın.</div>`;
+        btnPay.disabled = false;
+      }
+    });
+
+    // ============================================
+    // 6. GERİ DÜYMƏSI
+    // ============================================
+    el('btnBack').addEventListener('click', () => {
+      addDebug('Geri düyməsi basıldı - ödəniş forması bağlandı');
+      
+      formPay.style.display = 'none';
+      document.querySelectorAll('input[name="credit"]').forEach(r => r.checked = false);
+      CURRENT.selected = null;
+      el('amount').value = '';
+      el('note').value = '';
+      el('paymentStatus').innerHTML = '';
+      updateSummary();
+    });
+
+    // ============================================
+    // 7. XÜLASƏ YENİLƏMƏSİ
+    // ============================================
+    function updateSummary() {
+      el('selContract').textContent = CURRENT.selected ? CURRENT.selected.contract : '—';
+      el('bankName').textContent = CURRENT.selected ? CURRENT.selected.bank : '—';
+      el('namePreview').textContent = CURRENT.customer ? CURRENT.customer.fullName : '—';
+      el('due').textContent = CURRENT.selected ? `${CURRENT.selected.due.toFixed(2)} ₼` : '—';
+    }
+
+    // ============================================
+    // 8. SƏHIFƏ YÜKLƏNDİKDƏ
+    // ============================================
+    window.addEventListener('DOMContentLoaded', async () => {
+      addDebug('========================================');
+      addDebug('KREDİT ÖDƏNİŞ KİOSKU BAŞLADI');
+      addDebug('========================================');
+      addDebug(`Printer URL: ${PRINTER_BASE_URL}`);
+      addDebug(`Hardware URL: ${HARDWARE_BASE_URL}`);
+      addDebug(`Printer ID: ${PRINTER_ID}`);
+      addDebug('----------------------------------------');
+      
+      // Printer status yoxla
+      const printerStatus = await checkPrinterStatus();
+      
+      if (printerStatus.success) {
+        addDebug('✓ Sistem hazırdır - ödəniş qəbul edilə bilər');
+      } else {
+        console.warn('⚠ Printer xətası:', printerStatus.message);
+        addDebug('⚠ Printer problemi var - qəbzlər çap olunmaya bilər');
+      }
+      
+      addDebug('========================================');
+    });
+
+    // ============================================
+    // 9. BÖYÜK TƏQVİM (FLATPICKR)
+    // ============================================
+    // Not: Flatpickr kitabxanası səhifənin sonunda yüklənir
+  </script>
+
+  <!-- Flatpickr (Təqvim Kitabxanası) -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+    (function() {
+      const dobInput = document.getElementById('dob');
+      if (!dobInput) return;
+      
+      try {
+        // Input tipini text-ə çevir (Flatpickr üçün)
+        dobInput.setAttribute('type', 'text');
+      } catch (e) {
+        console.warn('Input tipi dəyişdirilə bilmədi:', e);
+      }
+      
+      // Flatpickr təqvimi aktiv et
+      flatpickr(dobInput, {
+        dateFormat: "Y-m-d",
+        defaultDate: dobInput.value || null,
+        allowInput: true,
+        disableMobile: false,
+        clickOpens: true,
+        position: "auto center",
+        locale: {
+          firstDayOfWeek: 1,
+          weekdays: {
+            shorthand: ['B', 'Be', 'Ça', 'Ç', 'Ca', 'C', 'Ş'],
+            longhand: ['Bazar', 'Bazar ertəsi', 'Çərşənbə axşamı', 'Çərşənbə', 'Cümə axşamı', 'Cümə', 'Şənbə']
+          },
+          months: {
+            shorthand: ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'İyn', 'İyl', 'Avq', 'Sen', 'Okt', 'Noy', 'Dek'],
+            longhand: ['Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun', 'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr']
+          }
+        }
+      });
+      
+      console.log('✓ Təqvim (Flatpickr) aktiv edildi');
+    })();
+  </script>
+</body>
+</html>

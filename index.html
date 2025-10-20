@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bank Kiosk</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      height:100vh;
+      background:#4080C0;
+      font-family:Arial,sans-serif;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      gap:190px;
+      position:relative;
+      overflow:hidden;
+      padding-top:520px;
+    }
+    body::before{
+      content:'';
+      position:absolute;
+      inset:0;
+      background-image:url('images/bank desing.png');
+      background-size:cover;
+      background-position:center;
+      opacity:0.25;
+      z-index:0;
+    }
+    .text{
+      background:rgba(255,255,255,0.95);
+      border-radius:24px;
+      font-weight:bold;
+      color:#111;
+      box-shadow:0 10px 30px rgba(0,0,0,0.3);
+      text-align:center;
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:1;
+      cursor:pointer;
+      transition:transform 0.2s;
+      max-width:90vw;
+    }
+    .text:hover{
+      transform:translateX(-50%) scale(1.05);
+    }
+    .text:active{
+      transform:translateX(-50%) scale(0.98);
+    }
+    
+    /* BİRİNCİ BUTON - Kredit ödənişi */
+    .text:first-child{
+      top:750px;
+      width:940px;
+      padding:38px 80px;
+      font-size:32px;
+    }
+    
+    /* İKİNCİ BUTON - Digər əməliyyatlar */
+    .text:last-child{
+      top:1055px;
+      width:940px;
+      padding:38px 80px;
+      font-size:32px;
+    }
+  </style>
+</head>
+<body>
+  <div class="text" onclick="window.location.href='kredit.html'">Kredit ödənişi</div>
+  <div class="text" onclick="window.location.href='emeliyyatlar.html'">Digər əməliyyatlar və növbə götür</div>
+</body>
+</html>

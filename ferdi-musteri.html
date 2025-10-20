@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Fərdi Müştəri Əməliyyatları - Bank of Baku</title>
+  <style>
+    :root {
+      --bg1: #1f71ff;
+      --bg2: #1673ff;
+      --tile: #ffffff;
+      --muted: #6b7280;
+      --ink: #111827;
+      --radius: 18px;
+      --shadow: 0 10px 24px rgba(0,0,0,.15);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      background: url('images/halal bank design new.png') center/cover no-repeat, linear-gradient(180deg, var(--bg1), var(--bg2));
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow: hidden;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      border-radius: var(--radius);
+      backdrop-filter: blur(10px);
+      width: 100%;
+      max-width: 900px;
+    }
+    
+    .header h1 {
+      font-size: 42px;
+      margin-bottom: 12px;
+      font-weight: 800;
+    }
+    
+    .header p {
+      font-size: 24px;
+      opacity: 0.9;
+    }
+    
+    .buttons-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      width: 100%;
+      max-width: 900px;
+    }
+    
+    .service-btn {
+      background: var(--tile);
+      border-radius: var(--radius);
+      padding: 35px 40px;
+      box-shadow: var(--shadow);
+      border: 3px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+      text-align: left;
+      backdrop-filter: blur(5px);
+    }
+    
+    .service-btn:hover {
+      transform: translateX(6px);
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    
+    .service-btn:active {
+      transform: translateX(2px);
+    }
+    
+    .service-icon {
+      font-size: 48px;
+      margin-right: 24px;
+      flex-shrink: 0;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,.15));
+    }
+    
+    .service-text {
+      flex: 1;
+    }
+    
+    .service-text h2 {
+      margin: 0;
+      font-size: 32px;
+      color: #000000;
+      font-weight: 800;
+    }
+    
+    .service-text p {
+      color: #000000;
+      font-size: 18px;
+      line-height: 1.3;
+      margin-top: 4px;
+    }
+    
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,.2);
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 900px;
+      opacity: .9;
+      font-size: 16px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 15px;
+      border-radius: var(--radius);
+      backdrop-filter: blur(10px);
+    }
+    
+    .back-btn {
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      color: #fff;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .back-btn:hover {
+      background: rgba(255,255,255,.25);
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: rgba(0, 0, 0, 0.9);
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 500px;
+      border: 2px solid #22c55e;
+    }
+
+    .modal-content h2 {
+      font-size: 32px;
+      color: #4ade80;
+      margin-bottom: 15px;
+    }
+
+    .modal-content p {
+      font-size: 18px;
+      margin-bottom: 20px;
+      opacity: 0.9;
+    }
+
+    .ticket-number {
+      font-size: 72px;
+      font-weight: 800;
+      color: #22c55e;
+      margin: 20px 0;
+      text-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+    }
+
+    .modal-btn {
+      background: #22c55e;
+      color: #fff;
+      border: none;
+      padding: 15px 40px;
+      font-size: 18px;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .modal-btn:hover {
+      background: #16a34a;
+    }
+
+    .error-modal .modal-content {
+      border-color: #ef4444;
+    }
+
+    .error-modal h2 {
+      color: #f87171;
+    }
+
+    .error-modal .ticket-number {
+      color: #ef4444;
+      text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+    }
+
+    .error-modal .modal-btn {
+      background: #ef4444;
+    }
+
+    .error-modal .modal-btn:hover {
+      background: #dc2626;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Fərdi Müştəri Əməliyyatları</h1>
+    <p>Zəhmət olmasa istədiyiniz əməliyyat növünü seçin:</p>
+  </div>
+  
+  <div class="buttons-container">
+    <button class="service-btn" id="cardBtn">
+      <div class="service-icon">💳</div>
+      <div class="service-text">
+        <h2>Kart əməliyyatları</h2>
+        <p>Bank kartları ilə bağlı bütün əməliyyatlar</p>
+      </div>
+    </button>
+    
+    <button class="service-btn" id="creditBtn">
+      <div class="service-icon">💰</div>
+      <div class="service-text">
+        <h2>Kredit</h2>
+        <p>Kredit müraciəti, kredit ödənişi və kredit sorğuları</p>
+      </div>
+    </button>
+    
+    <button class="service-btn" id="depositBtn">
+      <div class="service-icon">🏦</div>
+      <div class="service-text">
+        <h2>Depozit / Əmanət</h2>
+        <p>Depozit açma, bağlama və əmanət əməliyyatları</p>
+      </div>
+    </button>
+    
+    <button class="service-btn" id="currencyBtn">
+      <div class="service-icon">💱</div>
+      <div class="service-text">
+        <h2>Valyuta əməliyyatları</h2>
+        <p>Valyuta alış-satışı və valyuta köçürmələri</p>
+      </div>
+    </button>
+  </div>
+  
+  <div class="footer">
+    <button class="back-btn" id="backBtn">◄ Geri</button>
+    <div>Terminal № <strong>2312</strong> • Nardaran</div>
+  </div>
+
+  <!-- Success Modal -->
+  <div class="modal" id="ticketModal">
+    <div class="modal-content">
+      <h2>🎫 Biletiniz Hazırdır</h2>
+      <p>Növbə nömrəniz:</p>
+      <div class="ticket-number" id="ticketNumber">A313</div>
+      <p id="operationType">Əməliyyat növü</p>
+      <button class="modal-btn" id="closeModal">Bağla</button>
+    </div>
+  </div>
+
+  <!-- Error Modal -->
+  <div class="modal error-modal" id="errorModal">
+    <div class="modal-content">
+      <h2>⚠️ Xəta</h2>
+      <p id="errorMessage">Xəta baş verdi</p>
+      <div class="ticket-number" id="errorTicketNumber"></div>
+      <button class="modal-btn" id="closeErrorModal">Bağla</button>
+    </div>
+  </div>
+
+  <script>
+    const PRINTER_BASE_URL = "http://10.66.66.63:8080";
+    
+    // Debug log
+    function addDebug(message) {
+      console.log(message);
+    }
+    
+    // Success modal göstər
+    function showTicketModal(queueNumber, operationName) {
+      const modal = document.getElementById('ticketModal');
+      const ticketNumberEl = document.getElementById('ticketNumber');
+      const operationTypeEl = document.getElementById('operationType');
+      
+      ticketNumberEl.textContent = queueNumber;
+      operationTypeEl.textContent = operationName;
+      
+      modal.style.display = 'flex';
+    }
+
+    // Error modal göstər
+    function showErrorModal(message, ticketNumber = '') {
+      const modal = document.getElementById('errorModal');
+      const errorMessageEl = document.getElementById('errorMessage');
+      const errorTicketNumberEl = document.getElementById('errorTicketNumber');
+      
+      errorMessageEl.textContent = message;
+      errorTicketNumberEl.textContent = ticketNumber;
+      
+      modal.style.display = 'flex';
+    }
+
+    // Modal bağla
+    document.getElementById('closeModal').addEventListener('click', function() {
+      document.getElementById('ticketModal').style.display = 'none';
+    });
+
+    document.getElementById('closeErrorModal').addEventListener('click', function() {
+      document.getElementById('errorModal').style.display = 'none';
+    });
+    
+    // Printer statusunu yoxla
+    async function checkPrinterStatus(printerId = 1) {
+      try {
+        const response = await fetch(`${PRINTER_BASE_URL}/api/getPrintStatus`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: printerId })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const result = await response.json();
+        addDebug(`Printer ${printerId} status: ${JSON.stringify(result)}`);
+        
+        if (result.isSuccess) {
+          const status = result.data;
+          if (status === "Printer Normal") {
+            return { success: true, message: "Printer hazırdır" };
+          } else {
+            return { success: false, message: `Printer problemi: ${status}` };
+          }
+        } else {
+          return { success: false, message: result.errorMsg || "Printer statusu alınmadı" };
+        }
+      } catch (error) {
+        addDebug(`Printer status yoxlanış xətası: ${error.message}`);
+        return { success: false, message: `Printer əlaqə xətası: ${error.message}` };
+      }
+    }
+    
+    // Növbə bileti çap et
+    async function printQueueTicket(serviceName, printerId = 1) {
+      try {
+        // Növbə nömrəsi yarat
+        const prefix = 'A';
+        const number = Math.floor(Math.random() * 900) + 100;
+        const queueNumber = prefix + number;
+        
+        const currentDate = new Date();
+        const dateStr = currentDate.toLocaleDateString('az-AZ');
+        const timeStr = currentDate.toLocaleTimeString('az-AZ', {hour: '2-digit', minute:'2-digit'});
+        
+        addDebug(`Növbə bileti çap edilir: ${queueNumber}`);
+        
+        // Çek məzmunu hazırla
+        let receiptContent = "";
+        
+        // Başlıq
+        receiptContent += "#cmd_fs_xl\n#cmd_ta_c\nHALAL-P BANK\n";
+        receiptContent += "#cmd_fs_s\n#cmd_ta_c\n";
+        receiptContent += "Bakı şəhəri, Nardaran filialı\n";
+        receiptContent += "Tel: +994 12 XXX XX XX\n";
+        receiptContent += "#cmd_sep_equal\n";
+        receiptContent += "#cmd_lf_1\n";
+        
+        // Növbə nömrəsi - ən böyük
+        receiptContent += "#cmd_fs_xl\n#cmd_ta_c\n";
+        receiptContent += `${queueNumber}\n`;
+        receiptContent += "#cmd_lf_1\n";
+        
+        // Xidmət növü
+        receiptContent += "#cmd_fs_m\n#cmd_ta_c\n";
+        receiptContent += `${serviceName}\n`;
+        receiptContent += "#cmd_lf_1\n";
+        
+        receiptContent += "#cmd_sep_hyphen\n";
+        
+        // Tarix və saat
+        receiptContent += "#cmd_fs_s\n#cmd_ta_l\n";
+        receiptContent += `Tarix: ${dateStr}\n`;
+        receiptContent += `Saat: ${timeStr}\n`;
+        receiptContent += `Terminal № 2312 • Nardaran\n`;
+        
+        receiptContent += "#cmd_lf_1\n";
+        receiptContent += "#cmd_sep_equal\n";
+        
+        // Alt məlumat
+        receiptContent += "#cmd_fs_s\n#cmd_ta_c\n";
+        receiptContent += "Zəhmət olmasa növbənizi gözləyin\n";
+        receiptContent += "Təşəkkür edirik!\n";
+        receiptContent += "#cmd_lf_2\n";
+        receiptContent += "#cmd_cut_\n";
+        
+        // Printer API-yə göndər
+        const printResponse = await fetch(`${PRINTER_BASE_URL}/api/printSetting`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            id: printerId,
+            type: "template",
+            data: receiptContent,
+            encoding: "UTF-8"
+          })
+        });
+        
+        if (!printResponse.ok) {
+          throw new Error(`HTTP ${printResponse.status}`);
+        }
+        
+        const printResult = await printResponse.json();
+        addDebug(`Çek çap nəticəsi: ${JSON.stringify(printResult)}`);
+        
+        if (printResult.isSuccess) {
+          showTicketModal(queueNumber, serviceName);
+          return { success: true, queueNumber: queueNumber };
+        } else {
+          throw new Error(printResult.errorMsg || "Çek çap edilmədi");
+        }
+      } catch (error) {
+        addDebug(`Çek çap xətası: ${error.message}`);
+        showErrorModal(
+          'Çap zamanı xəta baş verdi!\n' + error.message,
+          queueNumber
+        );
+        return { success: false, error: error.message };
+      }
+    }
+    
+    // Səhifə yükləndikdə printer statusunu yoxla
+    window.addEventListener('DOMContentLoaded', () => {
+      checkPrinterStatus().then(result => {
+        if (result.success) {
+          addDebug(result.message);
+        } else {
+          console.warn('Printer xətası:', result.message);
+        }
+      });
+    });
+    
+    // Düymələrə klik hadisələrinin əlavə edilməsi
+    document.getElementById('cardBtn').addEventListener('click', function() {
+      printQueueTicket('Kart əməliyyatları');
+    });
+    
+    document.getElementById('creditBtn').addEventListener('click', function() {
+      printQueueTicket('Kredit');
+    });
+    
+    document.getElementById('depositBtn').addEventListener('click', function() {
+      printQueueTicket('Depozit / Əmanət');
+    });
+    
+    document.getElementById('currencyBtn').addEventListener('click', function() {
+      printQueueTicket('Valyuta əməliyyatları');
+    });
+     
+    // Geri düyməsi
+    document.getElementById('backBtn').addEventListener('click', function() {
+      window.location.href = 'emeliyyatlar.html';
+    });
+  </script>
+</body>
+</html>

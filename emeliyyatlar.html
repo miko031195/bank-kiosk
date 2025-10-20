@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Xidmət Seçimi - Bank of Baku</title>
+  <style>
+    :root {
+      --bg1: #1f71ff;
+      --bg2: #1673ff;
+      --tile: #ffffff;
+      --muted: #6b7280;
+      --ink: #111827;
+      --radius: 18px;
+      --shadow: 0 10px 24px rgba(0,0,0,.15);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      background: url('images/halal bank design new.png') center/cover no-repeat, linear-gradient(180deg, var(--bg1), var(--bg2));
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow: hidden;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      border-radius: var(--radius);
+      backdrop-filter: blur(10px);
+      width: 100%;
+      max-width: 900px;
+    }
+    
+    .header h1 {
+      font-size: 42px;
+      margin-bottom: 12px;
+      font-weight: 800;
+    }
+    
+    .header p {
+      font-size: 24px;
+      opacity: 0.9;
+    }
+    
+    .buttons-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      width: 100%;
+      max-width: 900px;
+    }
+    
+    .service-btn {
+      background: var(--tile);
+      border-radius: var(--radius);
+      padding: 35px 40px;
+      box-shadow: var(--shadow);
+      border: 3px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+      text-align: left;
+      backdrop-filter: blur(5px);
+    }
+    
+    .service-btn:hover {
+      transform: translateX(6px);
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    
+    .service-btn:active {
+      transform: translateX(2px);
+    }
+    
+    .service-icon {
+      font-size: 48px;
+      margin-right: 24px;
+      flex-shrink: 0;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,.15));
+    }
+    
+    .service-text {
+      flex: 1;
+    }
+    
+    .service-text h2 {
+      margin: 0;
+      font-size: 32px;
+      color: var(--ink);
+      font-weight: 800;
+    }
+    
+    .service-text p {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.3;
+      margin-top: 4px;
+    }
+    
+    .service-btn h2 {
+      color: #000000;
+    }
+    
+    .service-btn p {
+      color: #000000;
+    }
+    
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,.2);
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 900px;
+      opacity: .9;
+      font-size: 16px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 15px;
+      border-radius: var(--radius);
+      backdrop-filter: blur(10px);
+    }
+    
+    .back-btn {
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      color: #fff;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .back-btn:hover {
+      background: rgba(255,255,255,.25);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Xoş gəlmisiniz!</h1>
+    <p>Zəhmət olmasa xidmət növünü seçin:</p>
+  </div>
+  
+  <div class="buttons-container">
+    <button class="service-btn personal-btn" id="personalBtn">
+      <div class="service-icon"> </div>
+      <div class="service-text">
+        <h2>FƏRDİ MÜŞTƏRİ</h2>
+        <p>Şəxsi bank xidmətləri və maliyyə əməliyyatları</p>
+      </div>
+    </button>
+    
+    <button class="service-btn business-btn" id="businessBtn">
+      <div class="service-icon"> </div>
+      <div class="service-text">
+        <h2>BİZNES MÜŞTƏRİ</h2>
+        <p>Korporativ bankçılıq və biznes həlləri</p>
+      </div>
+    </button>
+    
+    <button class="service-btn cash-btn" id="cashBtn">
+      <div class="service-icon"> </div>
+      <div class="service-text">
+        <strong> <h2>KASSA ƏMƏLİYYATI</h2> <strong>
+        <p>Nağd pul yatırma və çıxarma əməliyyatları</p>
+      </div>
+    </button>
+  </div>
+  
+  <div class="footer">
+    <button class="back-btn" id="backBtn">◄ Geri</button>
+    <div>Terminal № <strong>2312</strong> • Nardaran</div>
+  </div>
+
+  <script>
+    // Düymələrə klik hadisələrinin əlavə edilməsi
+    document.getElementById('personalBtn').addEventListener('click', function() {
+      window.location.href = 'ferdi-musteri.html';
+    });
+    
+    document.getElementById('businessBtn').addEventListener('click', function() {
+      window.location.href = 'Biznes müştəri.html';
+    });
+    
+    document.getElementById('cashBtn').addEventListener('click', function() {
+      window.location.href = 'Kassa əməliyyatı.html';
+    });
+    
+    // Geri düyməsi
+    document.getElementById('backBtn').addEventListener('click', function() {
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>
